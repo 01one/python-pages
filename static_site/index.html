@@ -60,9 +60,38 @@
             0%, 100% { opacity: 0; }
             50% { opacity: 1; }
         }
+        
+        
+        .page-link {
+            height: 50px;
+            width: 100%;
+            background: black;
+            color: white;
+            font-size: larger;
+            z-index: 9999;
+            position: fixed; 
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page-link a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+
+        .page-link a:hover {
+            text-decoration: underline;
+        }        
+        
+        
     </style>
 </head>
 <body>
+	<div class='page-link'> <a href="/readme.md" target="_blank">check the readme.md page. You can also render .md page to html</a></div>
     <div id="magicWand" class="magic-wand">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
     </div>
