@@ -41,11 +41,6 @@ for ext, mime in supported_mime_types.items():
 	mimetypes.add_type(mime, ext)
 
 
-class StaticFileHandlerWithCache(StaticFileHandler):
-	def initialize(self, path, **kwargs):
-		super().initialize(path, **kwargs)
-
-
 class CustomRedirectHandler(RequestHandler):
 	def get(self, path):
 		try:
