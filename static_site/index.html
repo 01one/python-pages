@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Wand And The Starry Sky</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            cursor: none;
+            overflow: hidden;
+            background-color: #282c34;
+            height: 200vh;
+            position: relative;
+            margin: 0;
+        }
+        .magic-wand {
+            position: fixed;
+            pointer-events: none;
+            font-size: 40px;
+            color: #FFD700;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+            animation: explode 1.5s forwards;
+            color: #FFD700;
+            will-change: transform, opacity;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 
+                         0 0 20px rgba(255, 255, 255, 0.5), 
+                         0 0 30px rgba(255, 215, 0, 0.7), 
+                         0 0 40px rgba(255, 215, 0, 0.5);
+        }
+        .background-star {
+            position: absolute;
+            pointer-events: none;
+            color: #FFD700;
+            will-change: opacity;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            animation: twinkle var(--duration) infinite;
+            opacity: 0;
+        }
+        @keyframes explode {
+            0% {
+                opacity: 1;
+                transform: scale(1) translate(0, 0);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.2) translate(calc(var(--tx) * 0.5), calc(var(--ty) * 0.5));
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.8) translate(var(--tx), var(--ty));
+            }
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="magicWand" class="magic-wand">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </div>
+    <script>
+        const MAX_PARTICLES = 100;
+        const BACKGROUND_STARS = 100;
+        const particles = new Set();
+        
+        function removeOldestParticle() {
+            if (particles.size >= MAX_PARTICLES) {
+                const oldest = particles.values().next().value;
+                oldest.remove();
+                particles.delete(oldest);
+            }
+        }
+
+        function createBackgroundStars() {
+            for (let i = 0; i < BACKGROUND_STARS; i++) {
+                const star = document.createElement('div');
+                star.classList.add('background-star');
+                
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * document.documentElement.scrollHeight;
+                const size = Math.random() * 15 + 5;
+                const duration = Math.random() * 3 + 2 + 's';
+                const delay = Math.random() * 3 + 's';
+                
+                star.style.cssText = `
+                    left: ${x}px;
+                    top: ${y}px;
+                    font-size: ${size}px;
+                    --duration: ${duration};
+                    animation-delay: ${delay};
+                `;
+                
+                star.innerHTML = '<i class="fa-solid fa-star"></i>';
+                document.body.appendChild(star);
+            }
+        }
+
+        function createParticle(x, y) {
+            removeOldestParticle();
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            const size = Math.random() * 20 + 10;
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 150 + 100;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+            
+            particle.style.cssText = `
+                left: ${x}px;
+                top: ${y}px;
+                font-size: ${size}px;
+                --tx: ${tx}px;
+                --ty: ${ty}px;
+            `;
+            
+            particle.innerHTML = '<i class="fa-solid fa-star"></i>';
+            document.body.appendChild(particle);
+            particles.add(particle);
+            particle.addEventListener('animationend', () => {
+                particles.delete(particle);
+                particle.remove();
+            }, { once: true });
+        }
+
+        let lastTime = 0;
+        const THROTTLE = 16;
+        
+        function handleMouseMovement(event) {
+            const now = performance.now();
+            if (now - lastTime < THROTTLE) return;
+            lastTime = now;
+            const magicWand = document.getElementById('magicWand');
+            magicWand.style.left = `${event.clientX}px`;
+            magicWand.style.top = `${event.clientY}px`;
+            createParticle(event.clientX, event.pageY);
+        }
+
+        createBackgroundStars();
+        
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('.background-star').forEach(star => star.remove());
+            createBackgroundStars();
+        });
+
+        document.addEventListener('mousemove', handleMouseMovement, { passive: true });
+    </script>
+</body>
+</html>
